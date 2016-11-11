@@ -1,0 +1,51 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+
+<dom-module id="remindbits-reminder">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+
+    
+    <template is="dom-if" if={{!editMode}}>
+      You will get reminders about [[reminder.name]], [[reminder.times]] times per [[reminder.per]] days 
+    </template>
+    
+    <template is="dom-if" if={{editMode}}>
+      <paper-input label="Name" value="{{reminder.name}}"></paper-input>
+      <paper-input label="Times" value="{{reminder.times}}"></paper-input>
+      <paper-input label="Per" value="{{reminder.per}}"></paper-input>
+    </template>
+    
+    
+    <paper-button raised on-tap="_toggleEdit">Edit</paper-button>
+    <paper-button raised on-tap="_delete">Delete</paper-button>
+    
+    
+  </template>
+  <script>
+    Polymer({
+      is: 'remindbits-reminder',
+      properties:{
+        reminder: {
+          type: Object,
+          notify: true
+        },
+        editMode:{
+          type: Boolean,
+          value: false
+        }
+      },
+      _toggleEdit: function(){
+        this.editMode = !this.editMode;
+      },
+      _delete: function(){
+        this.fire("delete",this.reminder);
+      }
+    });
+  </script>
+</dom-module>

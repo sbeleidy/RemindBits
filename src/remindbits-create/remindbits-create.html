@@ -1,0 +1,32 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+
+<dom-module id="remindbits-create">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+
+    <paper-input label="RemindBit Name" name="name" value="{{name}}"></paper-input>
+    <paper-input label="Times" name="times" value="{{times}}" type="number"></paper-input>
+    <paper-input label="Per" name="per" value="{{per}}" type="number"></paper-input>
+    <paper-button raised on-tap="_create">Create</paper-button>
+    
+    
+  </template>
+  <script>
+    Polymer({
+      is: 'remindbits-create',
+      _create: function(f){
+        this.fire("create", {
+          "name": this.name,
+          "times": this.times,
+          "per": this.per
+        });
+      }
+    });
+  </script>
+</dom-module>

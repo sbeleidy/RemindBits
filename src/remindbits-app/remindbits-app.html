@@ -1,0 +1,111 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/polymerfire/firebase-app.html">
+<link rel="import" href="../../bower_components/polymerfire/firebase-messaging.html">
+<link rel="import" href="../../bower_components/polymerfire/firebase-document.html">
+<link rel="import" href="../../bower_components/polymerfire/firebase-query.html">
+<link rel="import" href="../../bower_components/login-fire/social-login-fire.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../remindbits-create/remindbits-create.html">
+<link rel="import" href="../remindbits-reminder/remindbits-reminder.html">
+
+<dom-module id="remindbits-app">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+
+    <firebase-app
+      name="remindbits"
+      api-key="AIzaSyAncBX6fxg8LeE4p80c69qlePDbuvqZITU",
+      auth-domain="remindbits.firebaseapp.com",
+      database-url="https://remindbits.firebaseio.com",
+      storage-bucket="remindbits.appspot.com",
+      messaging-sender-id="1045707686079"></firebase-app>
+    
+    <firebase-messaging
+      id="messaging"
+      app-name="remindbits"
+      token="{{token}}"
+      on-message="_handleMessage"></firebase-messaging>
+
+    <social-login-fire
+      id="login"
+      hidden$="{{signedIn}}"
+      google
+      app-name="remindbits"
+      signed-in="{{signedIn}}"
+      user="{{user}}"
+      on-signedin="_authed"></social-login-fire>
+
+    <firebase-document app-name="remindbits" path="/users/[[user.uid]]/token" data="[[token]]"></firebase-document>
+    <firebase-document app-name="remindbits" path="/users/[[user.uid]]/data" data="[[user]]"></firebase-document>
+
+    <template is="dom-if" if="{{signedIn}}">
+      
+      <firebase-query id="reminders" app-name="remindbits" path="/remindbits/[[user.uid]]" data="{{reminders}}"></firebase-query>
+      <remindbits-create on-create="_addReminder"></remindbits-create>
+      
+      <template is="dom-repeat" items={{reminders}}>
+        <remindbits-reminder reminder="{{item}}" on-delete="_deleteReminder"></remindbits-reminder>
+      </template>
+
+      <paper-button raised on-click="_signOut">Log Out</paper-button>
+
+      <template is="dom-if" if={{!canNotify}}>
+        We currently can not send you reminders.
+        <paper-button raised on-click="_requestNotify">Allow Reminders</paper-button>
+      </template>
+    </template>
+    
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'remindbits-app',
+
+      properties: {
+        prop1: {
+          type: String,
+          value: 'remindbits-app',
+        },
+        signedIn:{
+          type: Boolean,
+          value: false
+        },
+        canNotify:{
+          type: Boolean,
+          computed: '_discoverPermission(signedIn)'
+        }
+      },
+      _authed: function(u){
+        // console.log("Signed In");
+      },
+      _signOut: function(){
+        this.$.login.signOut();
+      },
+      _handleMessage: function(m){
+        console.log(m);
+      },
+      _requestNotify: function(){
+        this.$.messaging.requestPermission().then(function() {
+          // permission was granted
+        }.bind(this), function(err) {
+          // permission was denied
+        }.bind(this));
+      },
+      _addReminder: function(r){
+        this.$$('#reminders').ref.push(r.detail);
+      },
+      _discoverPermission: function(e){
+        return Notification.permission === 'granted';
+      },
+      _deleteReminder: function(r){
+        this.$$('#reminders').ref.child(r.detail.$key).remove();
+      }
+
+    });
+  </script>
+</dom-module>

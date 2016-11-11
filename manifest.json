@@ -1,0 +1,8 @@
+{
+  "name": "remindbits",
+  "short_name": "remindbits",
+  "description": "Bits that remind you so you can create habits",
+  "start_url": "/",
+  "display": "standalone",
+  "gcm_sender_id": "103953800507"
+}
